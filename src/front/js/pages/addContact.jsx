@@ -1,45 +1,81 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import { Link } from "react-router-dom";
 
 const AddContact = () => {
-    const { store, actions } = useContext(Context)
-    const [data, setData] = useState({})
-
-    useEffect(() => { }, [data.full_name, data.phone, data.email])
-
-    return (<div>Aquí debería agregar contactos nuevos
+  const { store, actions } = useContext(Context);
+  const [data, setData] = useState({});
+  useEffect(() => {
+    setData({ ...data, agenda_slug: "agenda_de_israel" });
+  }, [
+    data.full_name,
+    data.phone,
+    data.email,
+    data.address,
+    data.img,
+    data.agenda_slug,
+  ]);
+  return (
+    <div>
+      <br />
+      <h1 className="text-center">Add new contact</h1>
+      <br />
+      <div className="container">
         <br />
-        <Link to="/">Regresar a lista de contactos</Link>
+        <form>
+          <label className="form-label">Full Name</label>
+          <input
+            placeholder="Full Name"
+            name="nombre"
+            className="form-control"
+            onChange={(e) => {
+              setData({ ...data, full_name: e.target.value });
+            }}
+          />
+          <label className="form-label">Email</label>
+          <input
+            placeholder="Enter email"
+            name="correo"
+            className="form-control"
+            onChange={(e) => {
+              setData({ ...data, email: e.target.value });
+            }}
+          />
+          <label className="form-label">Phone</label>
+          <input
+            placeholder="Enter phone"
+            name="tlf"
+            className="form-control"
+            onChange={(e) => {
+              setData({ ...data, phone: e.target.value });
+            }}
+          />
+          <label className="form-label">Address</label>
+          <input
+            placeholder="Enter address"
+            name="dirección"
+            className="form-control"
+            onChange={(e) => {
+              setData({ ...data, address: e.target.value });
+            }}
+          />
+          <br />
+          <Link to="/">
+            <button
+              type="button"
+              className="btn btn-primary col-12"
+              onClick={() => {
+                actions.addContact(data);
+              }}
+            >
+              Save
+            </button>
+          </Link>
+        </form>
         <br />
-        <input placeholder="Agregue el nombre del contacto" name="nombre" onChange={(e) => { setData({ ...data, full_name: e.target.value }) }} />
-        <input placeholder="Agregue nuúmero de teléfono" name="tlf" onChange={(e) => { setData({ ...data, phone: e.target.value }) }} />
-        <input placeholder="Agregue correo" name="correo" onChange={(e) => { setData({ ...data, email: e.target.value }) }} />
-
-
-        <button type="button" onClick={() => {
-            actions.addContact(data)
-        }}>Agregar Contacto a la Agenda</button>
-
-        <br />
-        <button onClick={async () => {
-            let { respuestaJson, response } = await actions.useFetch("/apis/fake/contact/",
-                {
-                    full_name: data.full_name,
-                    email: data.email,
-                    agenda_slug: "agenda_de_antonio",
-                    address: "47568 NW 34ST, 33434 FL, USA",
-                    phone: data.phone
-                },
-                "POST"
-            )
-            if (!response.ok) {
-                alert("No se registró el contacto")
-                return
-            }
-            console.log("Contacto creado: \n", respuestaJson)
-        }}>Boton con fetch</button>
-    </div>)
-}
-
+        <Link to="/">or get back to contacts</Link>
+      </div>
+    </div>
+  );
+};
 export default AddContact;

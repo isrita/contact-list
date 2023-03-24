@@ -1,65 +1,80 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../store/appContext";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPhone, faEnvelope, faLocationDot, faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 const Contactos = () => {
     const { store, actions } = useContext(Context)
     const [nombre, setNombre] = useState("")
-    const [lista, setLista] = useState(store.listaContactos)
-    const [refresh, setRefresh] = useState(false)
-    const [estadoTemporal, setEstadotemporal] = useState({})
+    const [data, setData] = useState([])
+
 
     useEffect(() => {
-        let funcionCarga = async () => {
-            let { respuestaJson, response } = await actions.useFetch("/apis/fake/contact/agenda/agenda_de_antonio", null)
-            console.log(respuestaJson)
-            setLista(respuestaJson)
-        }
-        funcionCarga() //aquí llamo a la función asíncrono
-
-    }, [refresh])
-
-    useEffect(() => { }, [lista, nombre])
-
-
-    return (<div>
-        Contactos
-        <br />
-        <Link to="/add-contact">Agregar un contacto</Link>
-        <br />
-        <input type="text" placeholder="nombreNuevo" onChange={(e) => setNombre(e.target.value)} />
-        <br />
-        <ul>
-            {lista && lista.length > 0 ? <>
-                {lista.map((item, index) => {
-                    return (
-                        <li key={index}>
-                            {item.full_name} - {item.email} - {item.phone}
-                            <button
-                                className="btn btn-warning"
-                                button="button"
-                                onClick={() => {
-                                    if (nombre == "") {
-                                        alert("Agregue un nombre")
-                                        return
-                                    }
-                                    actions.editContact(index, nombre)
-                                }}
-                            >
-                                Editar
-                            </button>
-                            <button
-                                className="btn btn-danger"
-                                type="button"
-                                onClick={() => { actions.deleteContact(index) }}>
-                                Eliminar Contacto
-                            </button>
-                        </li>
-                    )
-                })}
-            </> : <>No hay contactos</>}
-        </ul>
-    </div>)
+        fetch("https://assets.breatheco.de/apis/fake/contact/agenda/agenda_de_israel")
+        .then((response) => response.json())
+        .then((data) => setData(data))
+        .catch((error) => console.error(error));
+        actions.getContact(data)
+    }, [store.listaContactos])
+return (
+    <div className="container">
+        <div>
+            <br />
+            <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                <Link to="/add-contact">
+                    <button className="btn btn-success">Add new contact</button>
+                </Link>
+            </div>
+            {/* <input type="text" placeholder="nombre nuevo" onChange={(e) => setNombre(e.target.value)} /> */}
+            <br />
+            <ul className="list-group">
+                {store.listaContactos && store.listaContactos.length > 0 ? <>
+                    {store.listaContactos.map((item, index) => {
+                        return (
+                            <li className="list-group-item" key={index}>
+                                <div className="row">
+                                    <div className="col-2">
+                                        <img className="rounded-circle img-fluid" src="https://i.dailymail.co.uk/1s/2022/12/08/12/65377521-11516699-image-a-60_1670504370479.jpg" style={{ width: 200 }}></img>
+                                    </div>
+                                    <div className="col-9">
+                                        <div>
+                                            <h3>
+                                                {item.full_name}
+                                            </h3>
+                                        </div>
+                                        <div>
+                                            <FontAwesomeIcon icon={faLocationDot} className="pe-4" />
+                                            {item.address}
+                                        </div>
+                                        <div>
+                                            <FontAwesomeIcon icon={faEnvelope} className="pe-4" />
+                                            {item.email}
+                                        </div>
+                                        <div>
+                                            <FontAwesomeIcon icon={faPhone} className="pe-4" />
+                                            {item.phone}
+                                        </div>
+                                    </div>
+                                    <div className="col-1">
+                                        <div>
+                                            <Link to={`/edit-contact/${index}`}>
+                                                <button className="btn" button="button">
+                                                    <FontAwesomeIcon icon={faPencil} />
+                                                </button>
+                                            </Link>
+                                            <button type="button" className="btn" onClick={() => { actions.deleteContact(item.id) }}>
+                                                <FontAwesomeIcon icon={faTrash} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>)
+                    })}
+                </> : <>No hay contactos</>}
+            </ul>
+        </div>
+    </div>
+)
 }
-
 export default Contactos;
